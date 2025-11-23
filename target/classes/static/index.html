@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smartwatch Finder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #3b82f6;
+            --bg: #f1f5f9;
+            --card-bg: #ffffff;
+            --text: #334155;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --input-bg: #ffffff;
+            --hover-bg: #f8fafc;
+            --shadow: rgba(0, 0, 0, 0.05);
+            --modal-bg: rgba(15, 23, 42, 0.8);
+            --modal-content: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --primary: #f8fafc;
+            --accent: #60a5fa;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --input-bg: #1e293b;
+            --hover-bg: #334155;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --modal-bg: rgba(0, 0, 0, 0.8);
+            --modal-content: #1e293b;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Dark Mode Toggle */
+        .theme-switch-wrapper {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-switch {
+            display: inline-block;
+            height: 34px;
+            position: relative;
+            width: 60px;
+        }
+
+        .theme-switch input {
+            display: none;
+        }
+
+        .slider {
+            background-color: #ccc;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            background-color: white;
+            bottom: 4px;
+            content: "";
+            height: 26px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 26px;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .mode-icon {
+            margin-left: 10px;
+            font-size: 1.2rem;
+            color: var(--text);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            letter-spacing: -0.05rem;
+        }
+        
+        h1 i {
+            color: var(--accent);
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .nav-btn {
+            padding: 0.875rem 2rem;
+            border: none;
+            background: var(--card-bg);
+            color: var(--text);
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-btn i {
+            font-size: 1.1rem;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px var(--shadow);
+            background-color: var(--hover-bg);
+        }
+
+        .nav-btn.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Search Box */
+        .search-container {
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            position: relative;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1.5rem;
+            color: var(--text-light);
+            font-size: 1.2rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 1.25rem 1.5rem 1.25rem 3.5rem;
+            font-size: 1.1rem;
+            border: 2px solid transparent;
+            border-radius: 20px;
+            outline: none;
+            transition: all 0.3s;
+            box-sizing: border-box;
+            background: var(--input-bg);
+            color: var(--text);
+            box-shadow: 0 10px 25px -5px var(--shadow);
+        }
+
+        input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }
+
+        .suggestions {
+            position: absolute;
+            top: 100%;
+            left: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px var(--shadow);
+            z-index: 50;
+            overflow: hidden;
+            display: none;
+            margin-top: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .suggestion-item {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .suggestion-item:hover {
+            background-color: var(--hover-bg);
+            color: var(--accent);
+        }
+
+        /* Recommendation Form */
+        .filter-grid {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 10px 15px -3px var(--shadow);
+            margin-bottom: 3rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 3rem;
+            border: 1px solid var(--border);
+        }
+
+        .filter-group h3 {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background 0.2s;
+            color: var(--text);
+        }
+        
+        .checkbox-label:hover {
+            background: var(--hover-bg);
+        }
+
+        .checkbox-label input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+        }
+
+        .price-inputs {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .price-inputs input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--input-bg);
+            color: var(--text);
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, var(--accent), #2563eb);
+            color: white;
+            border: none;
+            padding: 1.25rem 2rem;
+            border-radius: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Results Grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px var(--shadow);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+            /* Avoid overlap with compare checkbox */
+            padding-right: 30px; 
+        }
+
+        .brand {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: rgba(59, 130, 246, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+        }
+
+        .card h3 {
+            margin: 0.5rem 0;
+            color: var(--primary);
+            font-size: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .price {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-left: auto; /* Ensure price stays right even with padding */
+        }
+
+        .description {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .specs-mini {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+        
+        .spec-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .match-badge {
+            background: rgba(22, 163, 74, 0.1);
+            color: #166534;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+        
+        [data-theme="dark"] .match-badge {
+             color: #86efac;
+             background: rgba(22, 163, 74, 0.3);
+        }
+
+        .compare-checkbox {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--accent);
+            z-index: 5;
+        }
+        
+        .compare-label {
+            position: absolute;
+            top: 1.5rem;
+            right: 3rem;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            opacity: 0;
+            transition: opacity 0.2s;
+            background: var(--card-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .card:hover .compare-label {
+            opacity: 1;
+        }
+
+        /* Comparison Modal */
+        .comparison-bar {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(150%);
+            background: var(--primary);
+            color: var(--bg);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 100;
+        }
+
+        .comparison-bar.visible {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .compare-btn {
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .clear-btn {
+            background: transparent;
+            border: 1px solid #64748b;
+            color: #cbd5e1;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+
+        .compare-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--modal-bg);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.2s;
+        }
+
+        .compare-content {
+            background: var(--modal-content);
+            color: var(--text);
+            border-radius: 24px;
+            max-width: 1000px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            position: relative;
+            border: 1px solid var(--border);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .compare-table th {
+            text-align: left;
+            padding: 1rem;
+            color: var(--text-light);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+            width: 20%;
+        }
+        
+        .compare-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+            width: 40%;
+        }
+        
+        .compare-table tr:last-child td, .compare-table tr:last-child th {
+            border-bottom: none;
+        }
+        
+        .spec-value {
+            font-weight: 500;
+            color: var(--primary);
+        }
+        
+        .did-you-mean {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--text-light);
+            background: rgba(250, 204, 21, 0.1);
+            padding: 1rem;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        
+        .did-you-mean span {
+            color: var(--accent);
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /* History Section */
+        .history-section {
+            margin-top: 6rem;
+            border-top: 1px solid var(--border);
+            padding-top: 3rem;
+            text-align: center;
+        }
+        
+        .history-section h3 {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+        }
+
+        .history-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .tag {
+            background: var(--card-bg);
+            padding: 0.5rem 1.25rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            color: var(--text);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+        
+        .tag:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="theme-switch-wrapper">
+        <label class="theme-switch" for="checkbox">
+            <input type="checkbox" id="checkbox" />
+            <div class="slider"></div>
+        </label>
+        <i class="fa-solid fa-moon mode-icon"></i>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1><i class="fa-solid fa-stopwatch"></i> Smartwatch Finder</h1>
+            <p style="color: var(--text-light); font-size: 1.1rem;">Discover the perfect wearable technology for your lifestyle</p>
+        </header>
+
+        <div class="nav-tabs">
+            <button class="nav-btn active" onclick="switchTab('search', this)">
+                <i class="fa-solid fa-magnifying-glass"></i> Smart Search
+            </button>
+            <button class="nav-btn" onclick="switchTab('recommend', this)">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Recommendation Wizard
+            </button>
+        </div>
+
+        <!-- VIEW: SEARCH -->
+        <div id="search-view" class="view-section active">
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fa-solid fa-search search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Search features, brands, or models (e.g., 'Solar', 'Diving', 'Apple')...">
+                </div>
+                <div id="suggestions" class="suggestions"></div>
+            </div>
+
+            <div style="text-align: center;">
+                <div id="didYouMean" class="did-you-mean" style="display: none;">
+                    Did you mean <span id="correctedTerm"></span>?
+                </div>
+            </div>
+
+            <div id="searchResults" class="results-grid">
+                <!-- Search Results -->
+            </div>
+        </div>
+
+        <!-- VIEW: RECOMMENDATION -->
+        <div id="recommend-view" class="view-section">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <h3><i class="fa-solid fa-tag"></i> Budget Range</h3>
+                    <div class="price-inputs">
+                        <input type="number" id="minPrice" placeholder="$ Min" value="0">
+                        <input type="number" id="maxPrice" placeholder="$ Max" value="2000">
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h3><i class="fa-solid fa-layer-group"></i> Preferred Brands</h3>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label"><input type="checkbox" name="brand" value="Apple"> Apple</label>
+                        <label class="checkbox-label"><input type="checkbox" name="brand" value="Samsung"> Samsung</label>
+                        <label class="checkbox-label"><input type="checkbox" name="brand" value="Garmin"> Garmin</label>
+                        <label class="checkbox-label"><input type="checkbox" name="brand" value="Fitbit"> Fitbit</label>
+                        <label class="checkbox-label"><input type="checkbox" name="brand" value="Suunto"> Suunto</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h3><i class="fa-solid fa-bolt"></i> Key Features</h3>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Heart Rate"> Heart Rate / ECG</label>
+                        <label class="checkbox-label"><input type="checkbox" name="feature" value="GPS"> GPS / Maps</label>
+                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Waterproof"> Waterproof / Swim</label>
+                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Battery"> Long Battery Life</label>
+                        <label class="checkbox-label"><input type="checkbox" name="feature" value="LTE"> LTE / Cellular</label>
+                    </div>
+                </div>
+            </div>
+            <button class="action-btn" onclick="getRecommendations()">Find My Perfect Watch <i class="fa-solid fa-arrow-right"></i></button>
+            
+            <div id="recResults" class="results-grid" style="margin-top: 3rem;"></div>
+        </div>
+
+        <!-- HISTORY -->
+        <div class="history-section">
+            <h3><i class="fa-solid fa-clock-rotate-left"></i> Trending Searches</h3>
+            <div id="searchHistory" class="history-tags"></div>
+        </div>
+
+        <footer style="margin-top: 5rem; text-align: center; color: var(--text-light); padding-bottom: 2rem;">
+            <!-- Removed credit text as requested -->
+        </footer>
+    </div>
+
+    <!-- COMPARISON UI -->
+    <div id="compareBar" class="comparison-bar">
+        <span id="compareCount">0 items selected</span>
+        <div style="display:flex; gap:1rem;">
+            <button class="clear-btn" onclick="clearCompare()">Clear</button>
+            <button class="compare-btn" onclick="showComparison()">Compare Now</button>
+        </div>
+    </div>
+
+    <div id="compareModal" class="compare-modal" onclick="closeModal(event)">
+        <div class="compare-content">
+            <button class="close-modal" onclick="document.getElementById('compareModal').style.display='none'">&times;</button>
+            <h2 style="margin-bottom: 1.5rem; color: var(--primary);">Detailed Comparison</h2>
+            <div id="compareTableContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // STATE
+        let selectedWatches = [];
+        let allWatchesCache = [];
+
+        // --- DARK MODE LOGIC ---
+        const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+        const currentTheme = localStorage.getItem('theme');
+
+        if (currentTheme) {
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            if (currentTheme === 'dark') {
+                toggleSwitch.checked = true;
+            }
+        }
+
+        function switchTheme(e) {
+            if (e.target.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        toggleSwitch.addEventListener('change', switchTheme);
+
+        function switchTab(tab, btn) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tab + '-view').classList.add('active');
+            if(btn) btn.classList.add('active');
+        }
+
+        // --- SEARCH LOGIC ---
+        const searchInput = document.getElementById('searchInput');
+        const suggestionsBox = document.getElementById('suggestions');
+        const resultsGrid = document.getElementById('searchResults');
+        const recResultsGrid = document.getElementById('recResults');
+        
+        let debounceTimer;
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value;
+            clearTimeout(debounceTimer);
+            if (query.length > 1) {
+                fetch(`/api/suggest?prefix=${query}`).then(res=>res.json()).then(showSuggestions);
+                debounceTimer = setTimeout(() => performSearch(query), 300);
+            } else {
+                suggestionsBox.style.display = 'none';
+            }
+        });
+
+        function showSuggestions(items) {
+            if (items.length === 0) { suggestionsBox.style.display = 'none'; return; }
+            suggestionsBox.innerHTML = items.slice(0, 5).map(item => 
+                `<div class="suggestion-item" onclick="selectSuggestion('${item}')"><i class="fa-solid fa-magnifying-glass" style="margin-right:10px; color:var(--text-light);"></i>${item}</div>`
+            ).join('');
+            suggestionsBox.style.display = 'block';
+        }
+
+        function selectSuggestion(term) {
+            searchInput.value = term;
+            suggestionsBox.style.display = 'none';
+            performSearch(term);
+        }
+
+        function performSearch(query) {
+            fetch(`/api/search?query=${query}`)
+                .then(res => res.json())
+                .then(data => {
+                    renderResults(data.watches, resultsGrid);
+                    
+                    const dym = document.getElementById('didYouMean');
+                    if (data.suggestion) {
+                        dym.style.display = 'inline-block';
+                        document.getElementById('correctedTerm').textContent = data.suggestion;
+                        document.getElementById('correctedTerm').onclick = () => selectSuggestion(data.suggestion);
+                    } else {
+                        dym.style.display = 'none';
+                    }
+                    updateHistory();
+                });
+        }
+
+        // --- RECOMMENDATION LOGIC ---
+        function getRecommendations() {
+            const brands = Array.from(document.querySelectorAll('input[name="brand"]:checked')).map(cb => cb.value);
+            const features = Array.from(document.querySelectorAll('input[name="feature"]:checked')).map(cb => cb.value);
+            const minPrice = document.getElementById('minPrice').value;
+            const maxPrice = document.getElementById('maxPrice').value;
+
+            const request = {
+                minPrice: minPrice ? parseFloat(minPrice) : 0,
+                maxPrice: maxPrice ? parseFloat(maxPrice) : 10000,
+                brands: brands,
+                features: features
+            };
+
+            fetch('/api/recommend', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(request)
+            })
+            .then(res => res.json())
+            .then(data => renderResults(data, recResultsGrid));
+        }
+
+        // --- SHARED RENDERING ---
+        function renderResults(watches, container) {
+            // Update cache with unique items
+            watches.forEach(w => {
+                if(!allWatchesCache.find(cw => cw.model === w.model)) {
+                    allWatchesCache.push(w);
+                }
+            });
+            
+            if (watches.length === 0) {
+                container.innerHTML = '<p style="text-align:center; width:100%; color:var(--text-light); font-size:1.2rem; margin-top:2rem;">No matching watches found.</p>';
+                return;
+            }
+
+            container.innerHTML = watches.map(watch => `
+                <div class="card">
+                    <div class="card-header">
+                        <span class="brand">${watch.brand}</span>
+                        <div style="text-align:right;">
+                             <span class="price">$${watch.price}</span>
+                        </div>
+                    </div>
+                    <span class="compare-label">Compare</span>
+                    <input type="checkbox" class="compare-checkbox" 
+                           ${selectedWatches.find(sw => sw.model === watch.model) ? 'checked' : ''}
+                           onchange='toggleCompare("${watch.model}", this)'>
+                           
+                    <h3>${watch.model}</h3>
+                    <div class="specs-mini">
+                        <span class="spec-item"><i class="fa-solid fa-battery-half"></i> ${watch.battery.split(' ')[0]}</span>
+                        <span class="spec-item"><i class="fa-solid fa-water"></i> ${watch.waterResistance.split(' ')[0]}</span>
+                    </div>
+                    <p class="description">${watch.description}</p>
+                    ${watch.searchMatchCount > 0 ? `<span class="match-badge"><i class="fa-solid fa-check"></i> Relevance Score: ${watch.searchMatchCount}</span>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // --- COMPARISON LOGIC ---
+        function toggleCompare(model, checkbox) {
+            // Find full object from cache
+            const watch = allWatchesCache.find(w => w.model === model);
+            
+            if (checkbox.checked) {
+                if (selectedWatches.length >= 3) {
+                    alert("You can only compare up to 3 items.");
+                    checkbox.checked = false;
+                    return;
+                }
+                if (!selectedWatches.some(w => w.model === watch.model)) {
+                    selectedWatches.push(watch);
+                }
+            } else {
+                selectedWatches = selectedWatches.filter(w => w.model !== watch.model);
+            }
+            updateCompareBar();
+        }
+
+        function updateCompareBar() {
+            const bar = document.getElementById('compareBar');
+            document.getElementById('compareCount').textContent = `${selectedWatches.length} items selected`;
+            if (selectedWatches.length > 0) bar.classList.add('visible');
+            else bar.classList.remove('visible');
+        }
+
+        function clearCompare() {
+            selectedWatches = [];
+            document.querySelectorAll('.compare-checkbox').forEach(cb => cb.checked = false);
+            updateCompareBar();
+        }
+
+        function showComparison() {
+            if (selectedWatches.length < 1) return;
+            
+            const container = document.getElementById('compareTableContainer');
+            
+            // Build Table
+            let html = `<table class="compare-table">
+                <tr>
+                    <th>Feature</th>
+                    ${selectedWatches.map(w => `<td><h3 style="margin:0; color:var(--primary);">${w.model}</h3></td>`).join('')}
+                </tr>
+                <tr>
+                    <th>Brand</th>
+                    ${selectedWatches.map(w => `<td>${w.brand}</td>`).join('')}
+                </tr>
+                <tr>
+                    <th>Price</th>
+                    ${selectedWatches.map(w => `<td><span class="spec-value">$${w.price}</span></td>`).join('')}
+                </tr>
+                <tr>
+                    <th>Display</th>
+                    ${selectedWatches.map(w => `<td>${w.display}</td>`).join('')}
+                </tr>
+                <tr>
+                    <th>Battery Life</th>
+                    ${selectedWatches.map(w => `<td>${w.battery}</td>`).join('')}
+                </tr>
+                <tr>
+                    <th>Water Resistance</th>
+                    ${selectedWatches.map(w => `<td>${w.waterResistance}</td>`).join('')}
+                </tr>
+                <tr>
+                    <th>Sensors</th>
+                    ${selectedWatches.map(w => `<td>${w.sensors}</td>`).join('')}
+                </tr>
+                <tr>
+                    <th>Connectivity</th>
+                    ${selectedWatches.map(w => `<td>${w.connectivity}</td>`).join('')}
+                </tr>
+                <tr>
+                    <th>Description</th>
+                    ${selectedWatches.map(w => `<td><span style="font-size:0.9rem; color:var(--text-light);">${w.description}</span></td>`).join('')}
+                </tr>
+            </table>`;
+            
+            container.innerHTML = html;
+            document.getElementById('compareModal').style.display = 'flex';
+        }
+
+        function closeModal(e) {
+            if (e.target.id === 'compareModal') e.target.style.display = 'none';
+        }
+
+        // --- HISTORY ---
+        function updateHistory() {
+            fetch('/api/history')
+                .then(res => res.json())
+                .then(data => {
+                    const sorted = Object.entries(data).sort(([,a], [,b]) => b - a).slice(0, 10);
+                    document.getElementById('searchHistory').innerHTML = sorted.map(([term, count]) => 
+                        `<span class="tag">${term}</span>`
+                    ).join('');
+                });
+        }
+        
+        updateHistory();
+    </script>
+</body>
+</html>
