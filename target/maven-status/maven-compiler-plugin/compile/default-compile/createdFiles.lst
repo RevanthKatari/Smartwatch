@@ -1,0 +1,10 @@
+com\example\smartwatchsearch\SmartwatchSearchApplication.class
+com\example\smartwatchsearch\service\SearchEngine.class
+com\example\smartwatchsearch\service\WebCrawler.class
+com\example\smartwatchsearch\service\HTMLParser.class
+com\example\smartwatchsearch\model\RecommendationRequest.class
+com\example\smartwatchsearch\service\SearchEngine$SearchResult.class
+com\example\smartwatchsearch\util\TrieNode.class
+com\example\smartwatchsearch\model\Smartwatch.class
+com\example\smartwatchsearch\util\Trie.class
+com\example\smartwatchsearch\controller\SearchController.class
