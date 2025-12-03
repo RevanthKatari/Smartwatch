@@ -1,7 +1,7 @@
 # Smartwatch Recommendation System
 
 ## Features
-- **Web Crawler**: Simulates crawling data from CSV source.
+- **Web Crawler**
 - **HTML Parser**: Parses structured data using Regular Expressions.
 - **Search Engine**: 
   - Inverted Indexing for O(1) lookup.
